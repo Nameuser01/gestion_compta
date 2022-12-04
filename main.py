@@ -6,12 +6,18 @@ import codecs
 import time
 import os
 
-# Cette fonction vérifie l'existence du fichier csv du mois courant. Si le fichier n'existe pas, il sera créé
-def file_verification():
+# Vérifie l'existence du fichier csv du mois courant. Si le fichier n'existe pas, il sera créé
+def file_verification(path):
 	# Récupération de la date actuelle
-	tmp_today = str(date.today())
-	today = f"{tmp_today[-2:]}/{tmp_today[5:7]}/{tmp_today[2:4]}"
-	today = today + ".csv"
+	tmp_filename = str(date.today())
+	filename = f"{tmp_filename[0:4]}_{tmp_filename[5:7]}.csv"
+
+	# Vérification de l'existence et création du fichier si nécessaire
+	file_exists = exists(f"{path}/{filename}")
+	if (file_exists == False):
+		os.system(f'echo "Date;Opérations;Objet" > {path}/{filename}')
+	else:
+		pass
 
 # Afficher le menu de selection des fichiers de travail
 def menu():
@@ -76,6 +82,7 @@ def extract_data(path, nom_fichier):
 def length_control(x, y, z):
 	print(f"X :\n{x}\nlen(x) = {len(x)}\n\n===\nY :\n{y}\nlen(y) = {len(y)}\n\n===\nZ :\n{z}\nlen(z) = {len(z)}")
 
+# Disposer clairement les données du fichier travaillé dans le terminal pour l'utilisateur
 def reading_file(x, y, z, nom_fichier):
 	print(nom_fichier)
 	title_1 = " Date \t\t|"
@@ -88,6 +95,7 @@ def reading_file(x, y, z, nom_fichier):
 	for i in range(1, len(x) - 1):
 		print(f"{x[i]} \t| {y[i]} \t| {z[i]}")
 
+# Test booléen pour déterminer si une variable est un float ou non
 def isfloat(x):
 		try:
 			float(x)
@@ -250,10 +258,10 @@ def delete_lines(path, nom_fichier, num_line):
 	f.close()
 	time.sleep(10)
 
-# Vérification de l'existance du fichier du mois courant 
-file_verification()
-
+# Vérification de l'existence du fichier du mois courant 
 path = "/home/elliot/py/comptabilité/DB"
+file_verification(path)
+
 quitter = False
 loopCutter = 0
 
@@ -302,7 +310,7 @@ while (quitter == False):
 				print("[*] Retour...")
 
 			elif (action_fichier == "1"):
-				extract_data(path, nom_fichier)
+				data_global, dates, operations, objets = extract_data(path, nom_fichier)
 				reading_file(dates, operations, objets, nom_fichier)
 
 			elif (action_fichier == "2"):
