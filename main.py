@@ -95,10 +95,18 @@ def reading_file(x, y, z, nom_fichier):
 	for i in range(1, len(x) - 1):
 		print(f"{x[i]} \t| {y[i]} \t| {z[i]}")
 
-# Test booléen pour déterminer si une variable est un float ou non
-def isfloat(x):
+# Test booléen pour déterminer si une variable est un float
+def isFloat(x):
 		try:
 			float(x)
+			return True
+		except ValueError:
+			return False
+
+# Test booléen pour déterminer si une variable est un integer
+def isInt(x):
+		try:
+			int(x)
 			return True
 		except ValueError:
 			return False
@@ -117,15 +125,20 @@ def adding_file(path, nom_fichier):
 	# Récupération de la date
 	while (quitter == False):
 		os.system("clear")
-		date_insert = input("Date (1 - aujourd'hui, 0 - quitter)\n> ")
-		date_insert = "".join(date_insert.split())
-		if (date_insert == "0"):
+		print("= = Choix possibles pour la selection de la date = =")
+		print("0 - Quitter")
+		print("1 - Date courante")
+		print("2 - Date pesonnalisée")
+		selec_date_entry = input("\n\nChoix d'une option\n> ")
+		selec_date_entry = "".join(selec_date_entry.split())
+		
+		if (selec_date_entry == "0"):
 			quitter = True
 			quitter_1 = True
 			quitter_2 = True
 			print("[*] Fermeture de l'interface d'édition.")
 
-		elif (date_insert == "1"):
+		elif (selec_date_entry == "1"):
 			tmp_today = str(date.today())
 			today = f"{tmp_today[-2:]}/{tmp_today[5:7]}/{tmp_today[2:4]}"
 			print("[+] Date correctement enregistrée")
@@ -133,19 +146,47 @@ def adding_file(path, nom_fichier):
 			quitter = True
 			bit_validation[0] = 1
 
-		elif (len(date_insert) == 8):
-			# Tester les 2 premiers, 2 milieu et 2 derniers groupes pour voir si c'est de nombres sinon on rejette
-			print("Cette fonctionnalité n'est pas encore disponible")
-			today = "24/11/22"
-			quitter = True
-			bit_validation[0] = 1
+		elif (selec_date_entry == "2"):
+			print("Veuillez compléter les informations suivantes :\n\n")
+			time.sleep(1.5)
 
-		elif (len(date_insert) == 10):
-			# Tester les 2 premiers, 2 milieu et 4 derniers groupes pour voir si c'est de nombres sinon on rejette
-			print("Cette fonctionnalité n'est pas encore disponible")
-			today = "24/11/22"
+			# Récupération de l'année utilisateur
+			recup_année = False
+			while (récup_année == False):
+				asked_year = str(input("Année = "))
+				isInteger = isInt(asked_year)
+				if (isInteger == False):
+					print(f"[!] Erreur : l'année {asked_year} n'est pas correcte !")
+				else:
+					current_date = datetime.date.today()
+					current_year = today.year
+					if (len(asked_year) == 2):
+						asked_year = str(current_year)[0:2] + str(asked_year)
+						asked_year = int(asked_year)
+						if (asked_year > 0 and asked_year <= current_year):
+							récup_année = True
+						else:
+							pass
+					elif (len(asked_year) == 1):
+						asked_year = str(current_year)[0:3] + str(asked_year)
+						asked_year = int(asked_year)
+						if (asked_year > 0 and asked_year <= current_year):
+							récup_année = True
+						else:
+							pass
+					elif (len(asked_year) == 4):
+						if (asked_year > 0 and asked_year <= current_year):
+							récup_année = True
+						else:
+							pass
+					else:
+						print("[!] Erreur : La date entrée possède une taille incorrecte !")
+
+			# validation et composition de la sortie
+			today = 
+
 			quitter = True
-			bit_validation[0] = 1
+			bit_validation[0] = 1  # Bit validation récupération correcte de la date
 
 		else:
 			loopCutter += 1
@@ -166,12 +207,12 @@ def adding_file(path, nom_fichier):
 		retour = False
 		for i in opération_insert:
 			if (i == "."):
-				retour = isfloat(opération_insert)
+				retour = isFloat(opération_insert)
 			elif (i == ","):
 				print(f"DEBEUG: somme à ajouter |{opération_insert[0:compteur]}|.|{opération_insert[compteur + 1:compteur + 3]}|")
 				tmp_injection = f"{opération_insert[0:compteur]}.{opération_insert[compteur + 1:compteur + 3]}"
 				print(f"tmp_injection vaut {tmp_injection}")
-				retour = isfloat(tmp_injection)
+				retour = isFloat(tmp_injection)
 				print(f"retour = {retour}")
 				time.sleep(5)
 
@@ -181,7 +222,7 @@ def adding_file(path, nom_fichier):
 			compteur += 1
 
 		if (compteur == len(opération_insert) and retour == False):
-			retour = isfloat(opération_insert)
+			retour = isFloat(opération_insert)
 		else:
 			pass
 
@@ -392,4 +433,3 @@ while (quitter == False):
 			quitter = True
 		else:
 			pass
-
