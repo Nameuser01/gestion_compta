@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import datetime
 from datetime import date
 from os.path import exists
 import codecs
@@ -21,8 +22,10 @@ def file_verification(path):
 
 # Afficher le menu de selection des fichiers de travail
 def menu():
+	current_date = datetime.date.today()
+	current_month = current_date.month
 	print("0 - Quitter le programme")
-	print("1 - Travailler sur le CSV du mois courant")
+	print(f"1 - Travailler sur le CSV du mois courant ({current_month})")
 	print("2 - Travailler sur un fichier CSV")
 
 
@@ -147,46 +150,111 @@ def adding_file(path, nom_fichier):
 			bit_validation[0] = 1
 
 		elif (selec_date_entry == "2"):
-			print("Veuillez compléter les informations suivantes :\n\n")
-			time.sleep(1.5)
+			print("\n\nVeuillez compléter les informations suivantes :\n")
+			time.sleep(0.25)
 
 			# Récupération de l'année utilisateur
-			recup_année = False
+			récup_année = False
+			bit_validation_dates = [0, 0, 0]
+			loop_cutter_récup_dates = 0
 			while (récup_année == False):
 				asked_year = str(input("Année = "))
 				isInteger = isInt(asked_year)
 				if (isInteger == False):
 					print(f"[!] Erreur : l'année {asked_year} n'est pas correcte !")
 				else:
+					asked_year = int(asked_year)
 					current_date = datetime.date.today()
-					current_year = today.year
-					if (len(asked_year) == 2):
+					current_year = current_date.year
+					if (len(str(asked_year)) == 2):
 						asked_year = str(current_year)[0:2] + str(asked_year)
 						asked_year = int(asked_year)
 						if (asked_year > 0 and asked_year <= current_year):
+							bit_validation_dates[0] = 1
 							récup_année = True
 						else:
 							pass
-					elif (len(asked_year) == 1):
+					elif (len(str(asked_year)) == 1):
 						asked_year = str(current_year)[0:3] + str(asked_year)
 						asked_year = int(asked_year)
 						if (asked_year > 0 and asked_year <= current_year):
+							bit_validation_dates[0] = 1
 							récup_année = True
 						else:
 							pass
-					elif (len(asked_year) == 4):
+					elif (len(str(asked_year)) == 4):
 						if (asked_year > 0 and asked_year <= current_year):
+							bit_validation_dates[0] = 1
 							récup_année = True
 						else:
 							pass
 					else:
-						print("[!] Erreur : La date entrée possède une taille incorrecte !")
+						print("[!] Erreur : La date entrée est de taille incorrecte !")
 
+			# Récupération du mois utilisateur
+			if (bit_validation_dates == [1, 0, 0]):
+				récup_mois = False
+			else:
+				récup_mois = True
+
+			loop_cutter_recup_mois = 0
+			while (récup_mois == False):
+				asked_month = str(input("Mois = "))
+				isInteger = isInt(asked_month)
+				if (isInteger == False):
+					print(f"[!] Erreur : le mois {asked_month} n'est pas correct !")
+				else:
+					asked_month = int(asked_month)
+					if (asked_month > 0 and asked_month <= 12):
+						bit_validation_dates[1] = 1
+						récup_mois = True
+					else:
+						if (loop_cutter_recup_mois >= 3):
+							print("[!] Erreur : Nombre de tentatives infructueuses trop important, fermerture de l'instance !")
+						else:
+							print(f"[!] Erreur : le mois {asked_month} n'est pas correct !")
+
+				loop_cutter_recup_mois += 1
+
+			# Récupération du jour utilisateur
+			if(bit_validation_dates == [1, 1, 0]):
+				récup_jour = False
+			else:
+				récup_jour = True
+
+			loop_cutter_recup_jour = 0
+			while (récup_jour == False):
+				asked_day = str(input("Jour = "))
+				isInteger = isInt(asked_day)
+				if (isInteger == False):
+					print(f"[!] Erreur : {asked_day} n'est pas correct !")
+				else:
+					asked_day = int(asked_day)
+					if (asked_day > 0 and asked_day <= 31):
+						bit_validation_dates[2] = 1
+						récup_jour = True
+					else:
+						print(f"[!] Erreur: Le jour {asked_day} n'est pas correct !")
+				loop_cutter_recup_jour += 1
+				if (loop_cutter_recup_jour >= 3):
+					print(f"[!] Erreur : Nombre de tentatives infructueuses trop important, fermeture de l'instance !")
+					récup_mois = True
+				else:
+					pass
+
+			loop_cutter_récup_dates += 1
 			# validation et composition de la sortie
-			today = 
-
-			quitter = True
-			bit_validation[0] = 1  # Bit validation récupération correcte de la date
+			if (bit_validation_dates == [1, 1, 1]):
+				today = f"{asked_day}/{asked_month}/{str(asked_year)[2:4]}"  # concat year, month, day into <today> variable
+				bit_validation[0] = 1
+				quitter = True
+			else:
+				if (loop_cutter_récup_dates >= 3):
+					print(f"[!] Erreur : Nombre de tentatives trop important, fermeture de l'instance !")
+					quitter = True
+				else:
+					print("[!] Erreur lors de la tentative de récupération de la date !")
+				
 
 		else:
 			loopCutter += 1
@@ -209,12 +277,8 @@ def adding_file(path, nom_fichier):
 			if (i == "."):
 				retour = isFloat(opération_insert)
 			elif (i == ","):
-				print(f"DEBEUG: somme à ajouter |{opération_insert[0:compteur]}|.|{opération_insert[compteur + 1:compteur + 3]}|")
 				tmp_injection = f"{opération_insert[0:compteur]}.{opération_insert[compteur + 1:compteur + 3]}"
-				print(f"tmp_injection vaut {tmp_injection}")
 				retour = isFloat(tmp_injection)
-				print(f"retour = {retour}")
-				time.sleep(5)
 
 			else:
 				pass
@@ -241,9 +305,6 @@ def adding_file(path, nom_fichier):
 			else:
 				pass
 
-		print(f"Somme à injecter dans le fichier csv : {opération_insert} €")  # DEBEUG
-		time.sleep(3)  # DEBEUG
-
 	# Récupération de l'objet lié à l'ajout de l'opération actuelle
 	while (quitter_2 == False):
 		os.system("clear")
@@ -260,7 +321,6 @@ def adding_file(path, nom_fichier):
 				pass
 
 	# Ajout des événements au fichier CSV
-	print(f"bit validation vaut {bit_validation}")
 	if (bit_validation == [1, 1, 1]):
 		f = open(f"{path}/{nom_fichier}", "a")
 		f.write(f"{today};{opération_valide} €;{objet_insert}\n")
@@ -272,7 +332,7 @@ def adding_file(path, nom_fichier):
 			total += a
 		print(f"[!] Ecriture non effectuée, {3 - total} champs est manquant !")
 
-	time.sleep(2)
+	time.sleep(1)
 
 def delete_lines(path, nom_fichier, num_line):
 	f = open(f"{path}/{nom_fichier}", "r")
@@ -297,7 +357,6 @@ def delete_lines(path, nom_fichier, num_line):
 
 		compteur += 1
 	f.close()
-	time.sleep(10)
 
 # Vérification de l'existence du fichier du mois courant 
 path = "/home/elliot/py/comptabilité/DB"
