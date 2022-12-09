@@ -111,6 +111,13 @@ def reading_file(x, y, z, nom_fichier):
 			print(f"{x[i]} \t| {y[i]} \t| {z[i]}")
 
 
+# Test booléen pour déterminer si un fichier existe
+def test_file_existence(path, filename):
+	file_full = f"{path}/{filename}"
+	result = exists(file_full)
+	return result
+
+
 # Test booléen pour déterminer si une variable est un float
 def isFloat(x):
 		try:
@@ -132,8 +139,69 @@ def isInt(x):
 # Module d'écriture dynamique d'événements dans des fichiers
 def writing_events(path, filename, x, y, z):
 	# Détection du fichier de destination
-	# Ecriture des trois arguments dans le fichier
-	pass
+	today = date.today()
+	current_year = today.year
+	result = test_file_existence(path, filename)
+	if (result == True):
+		# Enregistrement des données dans le fichier adéquat
+		fichier_destination = f"{str(current_year)[0:2]}{x[-2:]}_{x[3:5]}.csv"
+		global_data, dates, opérations, objets = extract_data(path, fichier_destination)
+		del global_data[0]
+		del dates[0]
+		del dates[len(dates) - 1]
+		del opérations[0]
+		del objets[0]
+
+		compteur = 1
+		position = 0
+		for i in dates:
+			if (int(x[0:2]) < int(i[0:2])):
+				if ((compteur - 1) >= 1):
+					if (int(x[0:2]) <= int(dates[-2][0:2])):
+						position = compteur
+						break
+					else:
+						position = compteur
+				else:
+					pass
+			elif (int(x[0:2]) < int(i[0:2]) and compteur == 1):
+				position = 1
+				break
+			elif (compteur == (len(dates) - 1) and position == 0):
+				position = len(dates) + 1
+			else:
+				pass
+			compteur += 1
+
+		# Ecriture dans un buffer
+		position -= 1
+		dates.insert(position, x)
+		opérations.insert(position, y)
+		objets.insert(position, f"{z}\n")
+		print(f"DEBEUG : {dates} !!! {opérations} !!! {objets}")
+
+		# Ecriture du buffer vers le fichier
+		f = open(f"{path}/{fichier_destination}", "w")
+		f.write("Date;Opérations;Objet\n")
+		for i in range(0, len(dates) - 1):
+			f.write(f"{dates[i]};{opérations[i]};{objets[i]}")
+		f.close()
+		print(f"[+] Données correctement écrites dans le fichier '{fichier_destination}'")
+	else:
+		print(f"[!] Erreur : le fichier {filename} n'existe pas, voulez vous le créer pour y ajouter les données que vous venez de renseigner ? [Y/n]")
+		choix_création_fichier = str(input("> "))
+		if (choix_création_fichier.lower() == "y" or choix_création_fichier.lower() == "o"):
+			# création du fichier et écriture des données
+			nouveau_fichier = f"{str(current_year)[0:2]}{x[-2:]}_{x[3:5]}.csv"
+			os.system(f'echo "Date;Opérations;Objet" > {path}/{nouveau_fichier}')
+			f = open(f"{path}/{nouveau_fichier}", "a")
+			f.write(f"{x};{y};{z}")
+			f.close()
+			print(f"[+] Données correctement écrites dans le fichier '{nouveau_fichier}' !")
+		else:
+			print("[*] Ok, abandon de l'écriture, aucun fichier ne sera mis à jour.")
+
+	time.sleep(1.5)	
 
 
 # add events to a csv file
@@ -268,6 +336,14 @@ def adding_file(path, nom_fichier):
 			loop_cutter_récup_dates += 1
 			# validation et composition de la sortie
 			if (bit_validation_dates == [1, 1, 1]):
+				if (len(str(asked_day)) == 1):
+					asked_day = f"0{asked_day}"
+				else:
+					pass
+				if (len(str(asked_month)) == 1):
+					asked_month = f"0{asked_month}"
+				else:
+					pass
 				today = f"{asked_day}/{asked_month}/{str(asked_year)[2:4]}"
 				bit_validation[0] = 1
 				quitter = True
