@@ -7,6 +7,12 @@ import codecs
 import time
 import os
 
+# Traduction mois numérique en format humain
+def get_human_month(x):
+	list_months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
+	return list_months[x - 1]
+
+
 # Vérifie l'existence du fichier csv du mois courant. Si le fichier n'existe pas, il sera créé
 def file_verification(path):
 	# Récupération de la date actuelle
@@ -20,13 +26,14 @@ def file_verification(path):
 	else:
 		pass
 
+
 # Afficher le menu de selection des fichiers de travail
 def menu():
 	current_date = datetime.date.today()
 	current_month = current_date.month
 	print("0 - Quitter le programme")
-	print(f"1 - Travailler sur le CSV du mois courant ({current_month})")
-	print("2 - Travailler sur un fichier CSV")
+	print(f"1 - Travailler sur le CSV du mois courant ({get_human_month(current_month)})")
+	print("2 - Choisir un fichier CSV")
 
 
 # Afficher le menu d'actions possibles sur les fichiers csv
@@ -68,6 +75,7 @@ def choix_nom_fichier(path):
 				pass
 			print("Erreur liée à la librairie 'exists' !")
 
+
 # Parsing des données récupérées depuis les fichiers CSV séléctionnés
 def extract_data(path, nom_fichier):
 	f = codecs.open(f"{path}/{nom_fichier}", "r", "utf8")
@@ -85,6 +93,7 @@ def extract_data(path, nom_fichier):
 def length_control(x, y, z):
 	print(f"X :\n{x}\nlen(x) = {len(x)}\n\n===\nY :\n{y}\nlen(y) = {len(y)}\n\n===\nZ :\n{z}\nlen(z) = {len(z)}")
 
+
 # Disposer clairement les données du fichier travaillé dans le terminal pour l'utilisateur
 def reading_file(x, y, z, nom_fichier):
 	print(nom_fichier)
@@ -96,7 +105,11 @@ def reading_file(x, y, z, nom_fichier):
 	separator_3 = "-" * (len(title_3) * 5)
 	print(f"\n{title_1}{title_2}{title_3}\n{separator_1}+{separator_2}+{separator_3}")
 	for i in range(1, len(x) - 1):
-		print(f"{x[i]} \t| {y[i]} \t| {z[i]}")
+		if (len(y[i]) <= 4):
+			print(f"{x[i]} \t| {y[i]} \t\t| {z[i]}")
+		else:
+			print(f"{x[i]} \t| {y[i]} \t| {z[i]}")
+
 
 # Test booléen pour déterminer si une variable est un float
 def isFloat(x):
@@ -106,6 +119,7 @@ def isFloat(x):
 		except ValueError:
 			return False
 
+
 # Test booléen pour déterminer si une variable est un integer
 def isInt(x):
 		try:
@@ -113,6 +127,14 @@ def isInt(x):
 			return True
 		except ValueError:
 			return False
+
+
+# Module d'écriture dynamique d'événements dans des fichiers
+def writing_events(path, filename, x, y, z):
+	# Détection du fichier de destination
+	# Ecriture des trois arguments dans le fichier
+	pass
+
 
 # add events to a csv file
 def adding_file(path, nom_fichier):
@@ -128,9 +150,10 @@ def adding_file(path, nom_fichier):
 	# Récupération de la date
 	while (quitter == False):
 		os.system("clear")
-		print("= = Choix possibles pour la selection de la date = =")
+		print("Choix possibles pour la selection de la date")
 		print("0 - Quitter")
-		print("1 - Date courante")
+		tmp_today_date = date.today()
+		print(f"1 - Date courante ({tmp_today_date.day}-{tmp_today_date.month}-{tmp_today_date.year})")
 		print("2 - Date pesonnalisée")
 		selec_date_entry = input("\n\nChoix d'une option\n> ")
 		selec_date_entry = "".join(selec_date_entry.split())
@@ -245,7 +268,7 @@ def adding_file(path, nom_fichier):
 			loop_cutter_récup_dates += 1
 			# validation et composition de la sortie
 			if (bit_validation_dates == [1, 1, 1]):
-				today = f"{asked_day}/{asked_month}/{str(asked_year)[2:4]}"  # concat year, month, day into <today> variable
+				today = f"{asked_day}/{asked_month}/{str(asked_year)[2:4]}"
 				bit_validation[0] = 1
 				quitter = True
 			else:
@@ -277,26 +300,24 @@ def adding_file(path, nom_fichier):
 			if (i == "."):
 				retour = isFloat(opération_insert)
 			elif (i == ","):
-				tmp_injection = f"{opération_insert[0:compteur]}.{opération_insert[compteur + 1:compteur + 3]}"
-				retour = isFloat(tmp_injection)
-
+				opération_insert = f"{opération_insert[0:compteur]}.{opération_insert[compteur + 1:compteur + 3]}"
+				retour = isFloat(opération_insert)
 			else:
 				pass
 
 			compteur += 1
 
-		if (compteur == len(opération_insert) and retour == False):
+		if (retour == False):
 			retour = isFloat(opération_insert)
 		else:
 			pass
-
 		if (retour == True):
 			opération_valide = opération_insert
 			quitter_1 = True
 			bit_validation[1] = 1
 
 		else:
-			print("[!] Somme entrée invalide, veuillez réessayer!")
+			print("[!] Somme entrée invalide, veuillez réessayer !")
 			loopCutter_1 += 1
 			if (loopCutter_1 >= 3):
 				print("[!] Trop d'erreurs, fermeture de l'instance !")
@@ -322,18 +343,18 @@ def adding_file(path, nom_fichier):
 
 	# Ajout des événements au fichier CSV
 	if (bit_validation == [1, 1, 1]):
-		f = open(f"{path}/{nom_fichier}", "a")
-		f.write(f"{today};{opération_valide} €;{objet_insert}\n")
-		f.close()
-		print(f"[+] Données écrites dans le fichier !")
+		writing_events(path, nom_fichier, today, opération_valide, objet_insert)
 	else:
 		total = 0
 		for a in bit_validation:
 			total += a
-		print(f"[!] Ecriture non effectuée, {3 - total} champs est manquant !")
+		if (total <= 2):
+			print(f"[!] Ecriture non effectuée, {3 - total} champs sont manquants !")
+		else:
+			print(f"[!] Ecriture non effectuée, {3 - total} champ est manquant !")
 
-	time.sleep(1)
 
+# Fonction de suppression de ligne(s) dans un fichier CSV
 def delete_lines(path, nom_fichier, num_line):
 	f = open(f"{path}/{nom_fichier}", "r")
 	f_content = f.readlines()
@@ -358,7 +379,7 @@ def delete_lines(path, nom_fichier, num_line):
 		compteur += 1
 	f.close()
 
-# Vérification de l'existence du fichier du mois courant 
+# Vérification de l'existence du fichier du mois courant
 path = "/home/elliot/py/comptabilité/DB"
 file_verification(path)
 
@@ -492,3 +513,4 @@ while (quitter == False):
 			quitter = True
 		else:
 			pass
+
